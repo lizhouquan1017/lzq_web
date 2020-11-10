@@ -29,12 +29,14 @@
             margin-left: -200px;
             margin-top: -150px;
         }
+        #errormsg{
+            color: red;
+        }
 </style>
 <body>
     <h1>班级列表</h1>
     <div>
-        <a href="/add_class/">添加</a>
-        <a onclick="showModal();">对话框添加</a>
+        <a onclick="showModal();">添加</a>
     </div>
     <table>
         <thead>
@@ -50,10 +52,8 @@
                     <td>{{ row.id }}</td>
                     <td>{{ row.title }}</td>
                     <td>
-                        <a href="/edit_class/?nid={{ row.id }}">编辑</a>
-                        |
-                        <a onclick="modelEdit(this);">对话框编辑</a>
-                        |
+                        <a onclick="edit_ShowModel(this);">编辑</a>
+                        | |
                         <a href="/del_class/?nid={{ row.id }}">删除</a>
                     </td>
                 </tr>
@@ -63,11 +63,10 @@
 
     <div id="shadow" class="shadow hide"></div>
     <div id="modal" class="modal hide">
-
         <p>
             <input id="title" type="text" name="title" />
         </p>
-        <input type="button" value="提交" onclick="AjaxSend();"  /><span id="errormsg"></span>
+        <input type="button" value="提交" onclick="addSend();"  /><span id="errormsg"></span>
         <input type="button" value="取消" onclick="cancleModal();"  />
 
     </div>
@@ -75,14 +74,74 @@
     <div id="editModal" class="modal hide">
         <h3>编辑框</h3>
         <p>
-            <input id="editId" type="text" name="id" style="display: none" />
-            <input id="editTitle" type="text" name="title" />
+            <input id="editId" type="text" name="id" style="display: none"/>
+            班级:<input id="editTitle" type="text" name="title" />
         </p>
-        <input type="button" value="提交" onclick="editAjaxSend();"  /><span id="errormsg"></span>
-        <input type="button" value="取消" onclick="cancleModal();"  />
+        <input type="button" value="提交" onclick="editSend();"  /><span id="errormsg"></span>
+        <input type="button" value="取消" onclick="cancleModal();"/>
 
     </div>
-<body>
+    <script src="/static/jquery-1.12.4.js"></script>
+    <script>
+        function showModal() {
+            document.getElementById('shadow').classList.remove('hide');
+            document.getElementById('modal').classList.remove('hide');
+        }
 
-</body>
+        function edit_ShowModel(ths) {
+            document.getElementById('shadow').classList.remove('hide');
+            document.getElementById('editModal').classList.remove('hide');
+
+            var row = $(ths).parent().prevAll();
+            var title = $(row[0]).text();
+            var id = $(row[1]).text();
+            console.log(title)
+            console.log(id)
+            $('#editTitle').val(title);
+            $('#editId').val(id);
+
+        }
+
+        function cancleModal() {
+            document.getElementById('shadow').classList.add('hide');
+            document.getElementById('modal').classList.add('hide');
+            document.getElementById('editModal').classList.add('hide');
+        }
+        
+        function addSend() {
+            $.ajax({
+                url: '/add_class/',
+                type: 'POST',
+                data: {'title': $('#title').val()},
+                success: function (data) {
+                    // 当服务端处理完成后，返回数据时，该函数自动调用
+                    // data=服务端返回的值
+                    console.log(data);
+                    if (data == "ok") {
+                        location.href = "/classes/";
+                    } else {
+                        $('#errormsg').text(data);
+                    }
+                }
+            })
+        }
+        
+        function editSend() {
+            $.ajax({
+                url: '/edit_class/',
+                type: 'POST',
+                data: {'id': $('#editId').val(), 'title': $('#editTitle').val()},
+                success: function (arg) {
+                    arg = JSON.parse(arg);
+                    if(arg.status){
+                        location.reload();
+                    }else{
+                         $('#errormsg').text(arg.message);
+                    }
+                }
+            })
+        }
+
+    </script>
+ </body>
 </html>
