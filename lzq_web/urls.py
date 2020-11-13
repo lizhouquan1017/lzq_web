@@ -24,4 +24,7 @@ urlpatterns = [
     url('edit_class/', views.edit_class),
     url('add_class/', views.add_class),
     url('del_class/', views.del_class),
+    url('student/', views.student),
+    url(r'add_sts/', views.add_student),
+    url(r'del_sts/', views.del_student),
 ]

@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>班级列表</title>
-</head>
-<style>
+    <title>学生列表</title>
+    <style>
         .hide{
             display: none;
         }
@@ -32,9 +31,10 @@
         #add_errormsg,#edit_errormsg{
             color: red;
         }
-</style>
+    </style>
+</head>
 <body>
-    <h1>班级列表</h1>
+    <h1>学生列表</h1>
     <div>
         <a onclick="showaddModal();">添加</a>
     </div>
@@ -42,19 +42,21 @@
         <thead>
             <tr>
                 <th>ID</th>
+                <th>学生姓名</th>
                 <th>班级名称</th>
                 <th>操作</th>
             </tr>
         </thead>
         <tbody>
-            {% for row in class_list %}
+            {% for row in student_list %}
                 <tr>
                     <td>{{ row.id }}</td>
-                    <td>{{ row.title }}</td>
+                    <td>{{ row.name }}</td>
+                    <td clsId="{{ row.class_id }}">{{ row.title }}</td>
                     <td>
                         <a onclick="edit_ShowModel(this);">编辑</a>
                         | |
-                        <a href="/del_class/?nid={{ row.id }}">删除</a>
+                        <a href="/del_sts/?nid={{ row.id }}">删除</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -64,53 +66,70 @@
     <div id="shadow" class="shadow hide"></div>
     <div id="add_modal" class="modal hide">
         <p>
-            <input id="title" type="text" name="title" />
+            学生姓名:<input id="st_name" type="text" name="name" />
+        </p>
+        <p>
+            所属班级:<select id="addclassId" name="class_id">
+                {% for row in class_list %}
+                    <option value="{{ row.id }}">{{ row.title }}</option>
+                {% endfor %}
+            </select>
         </p>
         <input type="button" value="提交" onclick="addSend();"/><span id="add_errormsg"></span>
         <input type="button" value="取消" onclick="cancleModal();"  />
     </div>
-
-    <div id="editModal" class="modal hide">
-        <h3>编辑框</h3>
+    <div id="edit_modal" class="modal hide">
+        <h3>编辑学生</h3>
         <p>
-            <input id="editId" type="text" name="id" style="display: none"/>
-            班级:<input id="editTitle" type="text" name="title" />
+            学生姓名:<input id="edit_name" name="sts_name" type="text" placeholder="姓名"/>
+            <input id="edit_id" name="sts_id" style="display: none"/>
         </p>
-        <input type="button" value="提交" onclick="editSend();"  /><span id="edit_errormsg"></span>
-        <input type="button" value="取消" onclick="cancleModal();"/>
+        <p>
+            所属班级:
+            <select id="edit_clsId" name="class_id">
+                {% for row in class_list %}
+                    <option value="{{ row.id }}">{{ row.title }}</option>
+                {% endfor %}
+            </select>
+        </p>
     </div>
+
     <script src="/static/jquery-1.12.4.js"></script>
     <script>
         function showaddModal() {
             document.getElementById('shadow').classList.remove('hide');
             document.getElementById('add_modal').classList.remove('hide');
         }
-
-        function edit_ShowModel(ths) {
-            document.getElementById('shadow').classList.remove('hide');
-            document.getElementById('editModal').classList.remove('hide');
-
-            var row = $(ths).parent().prevAll();
-            var title = $(row[0]).text();
-            var id = $(row[1]).text();
-            console.log(title)
-            console.log(id)
-            $('#editTitle').val(title);
-            $('#editId').val(id);
-
-        }
-
+        
         function cancleModal() {
             document.getElementById('shadow').classList.add('hide');
             document.getElementById('add_modal').classList.add('hide');
-            document.getElementById('editModal').classList.add('hide');
+            document.getElementById('edit_modal').classList.add('hide');
         }
         
+        function edit_ShowModel(ths) {
+            document.getElementById('shadow').classList.remove('hide');
+            document.getElementById('edit_modal').classList.remove('hide');
+
+            var row = $(ths).parent().prevAll();
+            var class_id = $(row[0]).attr('clsId');
+            var sts_name = $(row[1]).text();
+            var sts_id = $(row[2]).text();
+            console.log('班级id'+class_id)
+            console.log(sts_name)
+            console.log(sts_id)
+            $('#edit_name').val(sts_name);
+            $('#edit_id').val(sts_id);
+            $('#edit_clsId').val(sts_id);
+
+
+        }
+
         function addSend() {
             $.ajax({
-                url: '/add_class/',
+                url: '/add_sts/',
                 type: 'POST',
-                data: {'title': $('#title').val()},
+                data: {'name': $('#st_name').val(), 'class_id': $('#addclassId').val()},
                 success: function (arg) {
                     arg = JSON.parse(arg);
                     if (arg.status) {
@@ -121,23 +140,6 @@
                 }
             })
         }
-        
-        function editSend() {
-            $.ajax({
-                url: '/edit_class/',
-                type: 'POST',
-                data: {'id': $('#editId').val(), 'title': $('#editTitle').val()},
-                success: function (arg) {
-                    arg = JSON.parse(arg);
-                    if(arg.status){
-                        location.reload();
-                    }else{
-                         $('#edit_errormsg').text(arg.message);
-                    }
-                }
-            })
-        }
-
     </script>
- </body>
+</body>
 </html>

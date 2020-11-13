@@ -18,12 +18,20 @@ def classes(request):
 
 
 def add_class(request):
-    title = request.POST.get('title')
-    if len(title) > 0:
-        sqlhelp.modify('insert into class(title) values(%s)', [title, ])
-        return HttpResponse('ok')
-    else:
-        return HttpResponse('班级标题不能为空')
+    ret = {'status': True, 'message': None}
+    try:
+        title = request.POST.get('title')
+        if len(title) > 0:
+            sqlhelp.modify('insert into class(title) values(%s)', [title, ])
+        else:
+            print('名字为空')
+            ret['status'] = False
+            ret['message'] = '班级名称为空'
+    except Exception as e:
+        ret['status'] = False
+        ret['message'] = '处理异常'
+
+    return HttpResponse(json.dumps(ret))
 
 
 def edit_class(request):
@@ -43,3 +51,36 @@ def del_class(request):
     nid = request.GET.get('nid')
     sqlhelp.modify('delete from class where id=%s', [nid, ])
     return redirect('/classes/')
+
+
+def student(request):
+    student_list = sqlhelp.get_list("select student.id,student.name,student.class_id,class.title "
+                                    "from student left JOIN class on student.class_id = class.id", [])
+    class_list = sqlhelp.get_list('select id, title from class', [])
+    return render(request, 'student.html', {'student_list': student_list, 'class_list': class_list})
+
+
+def add_student(request):
+    ret = {'status': True, 'message': None}
+    try:
+        name = request.POST.get('name')
+        class_id = request.POST.get('class_id')
+        print(name)
+        print(class_id)
+        if len(name) > 0:
+            sqlhelp.modify('insert into student(name, class_id) values(%s, %s)', [name, class_id])
+        else:
+            print('名字为空')
+            ret['status'] = False
+            ret['message'] = '名字为空'
+    except Exception as e:
+        ret['status'] = False
+        ret['message'] = '处理异常'
+
+    return HttpResponse(json.dumps(ret))
+
+
+def del_student(request):
+    nid = request.GET.get('nid')
+    sqlhelp.modify('delete from student where id=%s', [nid, ])
+    return redirect('/student/')
