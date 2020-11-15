@@ -12,7 +12,7 @@ import pymysql
 
 
 def get_one(sql, args):
-    conn = pymysql.connect(host='127.0.0.1', port=3309, user='root', passwd='123456', db='sts', charset='utf8')
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='sts', charset='utf8')
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(sql, args)
     result = cursor.fetchone()
@@ -22,7 +22,7 @@ def get_one(sql, args):
 
 
 def get_list(sql, args):
-    conn = pymysql.connect(host='127.0.0.1', port=3309, user='root', passwd='123456', db='sts', charset='utf8')
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='sts', charset='utf8')
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(sql, args)
     result = cursor.fetchall()
@@ -32,7 +32,7 @@ def get_list(sql, args):
 
 
 def modify(sql, args):
-    conn = pymysql.connect(host='127.0.0.1', port=3309, user='root', passwd='123456', db='sts', charset='utf8')
+    conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', passwd='root', db='sts', charset='utf8')
     cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
     cursor.execute(sql, args)
     conn.commit()

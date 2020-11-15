@@ -84,3 +84,36 @@ def del_student(request):
     nid = request.GET.get('nid')
     sqlhelp.modify('delete from student where id=%s', [nid, ])
     return redirect('/student/')
+
+
+def teachers(request):
+    teacher_list = sqlhelp.get_list("""select teacher.id as tid,teacher.name,class.title from teacher
+                                        LEFT JOIN teacher2class on teacher.id = teacher2class.t_id
+                                        left JOIN class on class.id = teacher2class.c_id;""", [])
+    print(teacher_list)
+    result = {}
+    for row in teacher_list:
+        tid = row['tid']
+        if tid in result:
+            result[tid]['title'].append(row['title'])
+        else:
+            result[tid] = {'tid': row['tid'], 'name': row['name'], 'title': [row['title']]}
+
+    return render(request, 'teachers.html', {'teacher_list': result.values()})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>班级列表</title>
+</head>
+<style>
+        .hide{
+            display: none;
+        }
+        .shadow{
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background-color: black;
+            opacity: 0.4;
+            z-index: 999;
+        }
+        .modal{
+            z-index: 1000;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            height: 300px;
+            width: 400px;
+            background-color: white;
+            margin-left: -200px;
+            margin-top: -150px;
+        }
+        #add_errormsg,#edit_errormsg{
+            color: red;
+        }
+</style>
+<body>
+    <h1>老师列表</h1>
+    <div>
+        <a onclick="showaddModal();">添加</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>老师姓名</th>
+                <th>任教班级</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in teacher_list %}
+                <tr>
+                    <td>{{ row.tid }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>
+                        {% for item in row.title %}
+                             <span style="display: inline-block;padding: 5px; border: 1px solid red;">{{ item }}</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <a onclick="edit_ShowModel(this);">编辑</a>
+                        | |
+                        <a href="/del_thr/?nid={{ row.id }}">删除</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div id="shadow" class="shadow hide"></div>
+    <div id="add_modal" class="modal hide">
+        <p>
+            <input id="title" type="text" name="title" />
+        </p>
+        <input type="button" value="提交" onclick="addSend();"/><span id="add_errormsg"></span>
+        <input type="button" value="取消" onclick="cancleModal();"  />
+    </div>
+
+    <div id="editModal" class="modal hide">
+        <h3>编辑框</h3>
+        <p>
+            <input id="editId" type="text" name="id" style="display: none"/>
+            班级:<input id="editTitle" type="text" name="title" />
+        </p>
+        <input type="button" value="提交" onclick="editSend();"  /><span id="edit_errormsg"></span>
+        <input type="button" value="取消" onclick="cancleModal();"/>
+    </div>
+    <script src="/static/jquery-1.12.4.js"></script>
+    <script>
+        function showaddModal() {
+            document.getElementById('shadow').classList.remove('hide');
+            document.getElementById('add_modal').classList.remove('hide');
+        }
+
+        function edit_ShowModel(ths) {
+            document.getElementById('shadow').classList.remove('hide');
+            document.getElementById('editModal').classList.remove('hide');
+
+            var row = $(ths).parent().prevAll();
+            var title = $(row[0]).text();
+            var id = $(row[1]).text();
+            console.log(title)
+            console.log(id)
+            $('#editTitle').val(title);
+            $('#editId').val(id);
+
+        }
+
+        function cancleModal() {
+            document.getElementById('shadow').classList.add('hide');
+            document.getElementById('add_modal').classList.add('hide');
+            document.getElementById('editModal').classList.add('hide');
+        }
+
+        function addSend() {
+            $.ajax({
+                url: '/add_class/',
+                type: 'POST',
+                data: {'title': $('#title').val()},
+                success: function (arg) {
+                    arg = JSON.parse(arg);
+                    if (arg.status) {
+                        location.reload();
+                    } else {
+                        $('#add_errormsg').text(arg.message);
+                    }
+                }
+            })
+        }
+
+        function editSend() {
+            $.ajax({
+                url: '/edit_class/',
+                type: 'POST',
+                data: {'id': $('#editId').val(), 'title': $('#editTitle').val()},
+                success: function (arg) {
+                    arg = JSON.parse(arg);
+                    if(arg.status){
+                        location.reload();
+                    }else{
+                         $('#edit_errormsg').text(arg.message);
+                    }
+                }
+            })
+        }
+
+    </script>
+ </body>
+</html>
