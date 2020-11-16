@@ -28,4 +28,5 @@ urlpatterns = [
     url('add_sts/', views.add_student),
     url('del_sts/', views.del_student),
     url('teachers/', views.teachers),
+    url('add_teacher/', views.add_teacher),
 ]

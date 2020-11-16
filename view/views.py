@@ -90,7 +90,6 @@ def teachers(request):
     teacher_list = sqlhelp.get_list("""select teacher.id as tid,teacher.name,class.title from teacher
                                         LEFT JOIN teacher2class on teacher.id = teacher2class.t_id
                                         left JOIN class on class.id = teacher2class.c_id;""", [])
-    print(teacher_list)
     result = {}
     for row in teacher_list:
         tid = row['tid']
@@ -99,7 +98,30 @@ def teachers(request):
         else:
             result[tid] = {'tid': row['tid'], 'name': row['name'], 'title': [row['title']]}
 
-    return render(request, 'teachers.html', {'teacher_list': result.values()})
+    class_list = sqlhelp.get_list('select id, title from class', [])
+
+    return render(request, 'teachers.html', {'teacher_list': result.values(), 'class_list': class_list})
+
+
+def add_teacher(request):
+    ret = {'status': True, 'message': None}
+    try:
+        name = request.POST.get('name')
+        class_id = request.POST.get('class_id')
+        if len(name) > 0:
+            sqlhelp.modify('insert into teacher(name) values(%s)', [name, ])
+            tid = sqlhelp.get_one('select id from teacher where name = %s', [name, ])
+            sqlhelp.modify('insert into teacher2class(t_id, c_id) values (%s, %s)', [tid['id'], class_id])
+        else:
+            ret['status'] = False
+            ret['message'] = '名字为空'
+    except Exception as e:
+        ret['status'] = False
+        ret['message'] = '处理异常'
+
+
+
+    return HttpResponse(json.dumps(ret))
 
 
 

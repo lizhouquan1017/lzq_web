@@ -70,7 +70,14 @@
     <div id="shadow" class="shadow hide"></div>
     <div id="add_modal" class="modal hide">
         <p>
-            <input id="title" type="text" name="title" />
+            老师名称:<input id="t_name" type="text" name="name" />
+        </p>
+        <p>
+            任教班级:<select id="add_class_id" name="class_id">
+            {% for row in class_list %}
+                <option value="{{ row.id }}">{{ row.title }}</option>
+            {% endfor %}
+        </select>
         </p>
         <input type="button" value="提交" onclick="addSend();"/><span id="add_errormsg"></span>
         <input type="button" value="取消" onclick="cancleModal();"  />
@@ -114,9 +121,9 @@
 
         function addSend() {
             $.ajax({
-                url: '/add_class/',
+                url: '/add_teacher/',
                 type: 'POST',
-                data: {'title': $('#title').val()},
+                data: {'name': $('#t_name').val(), 'class_id': $('#add_class_id').val()},
                 success: function (arg) {
                     arg = JSON.parse(arg);
                     if (arg.status) {
