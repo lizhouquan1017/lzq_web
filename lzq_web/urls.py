@@ -30,4 +30,5 @@ urlpatterns = [
     url('teachers/', views.teachers),
     url('add_teacher/', views.add_teacher),
     url('edit_teacher/', views.edit_teacher),
+    url('get_all_class/', views.get_all_class),
 ]

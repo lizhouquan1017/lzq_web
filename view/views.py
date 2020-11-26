@@ -152,7 +152,7 @@ def edit_teacher(request):
         name = request.POST.get('name')
         class_ids = request.POST.getlist('class_ids')
         obj = SqlHelp()
-        obj.modify('update from teacher set name=%s where id=%s', [name, nid])
+        obj.modify('update teacher set name=%s where id=%s', [name, nid])
         obj.modify('delete from teacher2class where t_id=%s', [nid, ])
         for cls_id in class_ids:
             obj.modify('insert into teacher2class(t_id,c_id) values(%s,%s)', [nid, cls_id, ])
@@ -160,8 +160,12 @@ def edit_teacher(request):
         return redirect('/teachers/')
 
 
-
-
+def get_all_class(request):
+    obj = SqlHelp()
+    class_list = obj.get_list('select id,title from class', [])
+    obj.close()
+    print(class_list)
+    return HttpResponse(json.dumps(class_list))
 
 
 

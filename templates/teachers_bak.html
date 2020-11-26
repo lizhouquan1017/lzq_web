@@ -2,52 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title></title>
-    <link rel="stylesheet" href="/static/plugins/bootstrap-3.3.7-dist/css/bootstrap.css">
-    <style>
+    <title>班级列表</title>
+</head>
+<style>
         .hide{
             display: none;
         }
         .shadow{
-            /*相对于窗口*/
             position: fixed;
             left: 0;
+            top: 0;
             right: 0;
             bottom: 0;
-            top: 0;
             background-color: black;
             opacity: 0.4;
             z-index: 999;
         }
-        .loading{
-            position: fixed;
-            width: 32px;
-            height: 32px;
-            left: 50%;
-            top:50%;
-            margin-left: -16px;
-            margin-top: -16px;
-            background-image: url("/static/images/loading.gif");
-
-        }
-        .add-modal{
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 400px;
-            height: 300px;
+        .modal{
             z-index: 1000;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            height: 300px;
+            width: 400px;
             background-color: white;
             margin-left: -200px;
-            margin-top: -200px;
+            margin-top: -150px;
         }
-    </style>
-</head>
+        #add_errormsg,#edit_errormsg{
+            color: red;
+        }
+</style>
 <body>
     <h1>老师列表</h1>
-    <a href="/add_teacher/">添加</a>
-    <a id="btnAdd">对话框添加</a>
-    <table class="table">
+    <div>
+        <a id="btn_add">添加</a>
+    </div>
+    <table>
         <thead>
             <tr>
                 <th>ID</th>
@@ -62,15 +53,14 @@
                     <td>{{ row.tid }}</td>
                     <td>{{ row.name }}</td>
                     <td>
-                        {% for item in row.titles %}
-                            <span style="display: inline-block;padding: 5px; border: 1px solid red;">{{ item }}</span>
+                        {% for item in row.title %}
+                             <span style="display: inline-block;padding: 5px; border: 1px solid red;">{{ item }}</span>
                         {% endfor %}
-
                     </td>
                     <td>
                         <a href="/edit_teacher/?nid={{ row.tid }}">编辑</a>
-                        |
-                        <a>删除</a>
+                        | |
+                        <a href="/del_thr/?nid={{ row.id }}">删除</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -78,28 +68,36 @@
     </table>
 
     <div id="shadow" class="shadow hide"></div>
-    <div id="loading" class="loading hide"></div>
-    <div id="addModal" class="add-modal hide">
+    <div id="add_modal" class="modal hide">
         <p>
-            老师姓名：<input type="text" name="name" id="addName" />
+            老师名称:<input id="t_name" type="text" name="name" />
         </p>
         <p>
-            <select id="classIds"  multiple size="10">
+            任教班级:<select id="add_class_id" name="class_id" multiple size="5">
 
-            </select>
+        </select>
         </p>
-        <a id="addSubmit">提交</a>
+        <input type="button" value="提交" onclick="addSend();"/><span id="add_errormsg"></span>
+        <input type="button" value="取消" onclick="cancleModal();"  />
     </div>
 
+    <div id="editModal" class="modal hide">
+        <h3>编辑框</h3>
+        <p>
+            <input id="editId" type="text" name="id" style="display: none"/>
+            班级:<input id="editTitle" type="text" name="title" />
+        </p>
+        <input type="button" value="提交" onclick="editSend();"  /><span id="edit_errormsg"></span>
+        <input type="button" value="取消" onclick="cancleModal();"/>
+    </div>
     <script src="/static/jquery-1.12.4.js"></script>
     <script>
-        $(function(){
-            bindAdd();  
-            bindAddSubmit();
-        });
+        $(function () {
+            bindAdd();
+        })
 
         function bindAdd(){
-            $('#btnAdd').click(function(){
+            $('#btn_add').click(function(){
                 $('#shadow,#loading').removeClass('hide');
                 /*
                 发送ajax请求，获取所有班级信息
@@ -124,37 +122,18 @@
                             tag.innerHTML = row.title;
                             tag.setAttribute('value',row.id);
 
-                            $('#classIds').append(tag);
+                            $('#add_class_id').append(tag);
                         });
                         $('#loading').addClass('hide');
-                        $('#addModal').removeClass('hide');
+                        $('#add_modal').removeClass('hide');
                     }
                 })
 
             })
         }
 
-        function bindAddSubmit(){
-            $('#addSubmit').click(function(){
-                var name = $('#addName').val();
-                var class_id_list = $('#classIds').val();
-                console.log(name,class_id_list);
-                $.ajax({
-                    url:'/modal_add_teacher/',
-                    type: 'POST',
-                    data: {'name':name, 'class_id_list': class_id_list},
-                    dataType:'JSON',
-                    traditional: true,// 如果提交的数据的值有列表，则需要添加此属性
-                    success: function (arg) {
-                        if(arg.status){
-                            location.reload();
-                        }else{
-                            alert(arg.message);
-                        }
-                    }
-                })
-            });
-        }
+
+
     </script>
-</body>
+ </body>
 </html>
