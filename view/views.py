@@ -130,6 +130,34 @@ def add_teacher(request):
         return redirect('/teachers/')
 
 
+def edit_teacher(request):
+    if request.method == 'GET':
+        nid = request.GET.get('nid')
+        obj = SqlHelp()
+        teacher_info = obj.get_one('select id, name from teacher where id=%s', [nid, ])
+        class_id_list = obj.get_list('select c_id from teacher2class where t_id=%s', [nid, ])
+        class_list = obj.get_list('select id, title from class', [])
+        temp = []
+        for i in class_id_list:
+            temp.append(i['c_id'])
+        obj.close()
+        print(teacher_info, class_id_list, class_list)
+        return render(request, 'edit_teacher.html', {
+            'teacher_info': teacher_info,
+            'class_id_list': temp,
+            'class_list': class_list,
+        })
+    else:
+        nid = request.GET.get('nid')
+        name = request.POST.get('name')
+        class_ids = request.POST.getlist('class_ids')
+        obj = SqlHelp()
+        obj.modify('update from teacher set name=%s where id=%s', [name, nid])
+        obj.modify('delete from teacher2class where t_id=%s', [nid, ])
+        for cls_id in class_ids:
+            obj.modify('insert into teacher2class(t_id,c_id) values(%s,%s)', [nid, cls_id, ])
+        obj.close()
+        return redirect('/teachers/')
 
 
 

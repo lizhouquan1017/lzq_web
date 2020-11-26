@@ -29,4 +29,5 @@ urlpatterns = [
     url('del_sts/', views.del_student),
     url('teachers/', views.teachers),
     url('add_teacher/', views.add_teacher),
+    url('edit_teacher/', views.edit_teacher),
 ]
