@@ -16,7 +16,7 @@ def classes(request):
     obj = SqlHelp()
     class_list = obj.get_list('select id, title from class', [])
     obj.close()
-    return render(request, 'classes.html', {'class_list': class_list})
+    return render(request, 'class.html', {'class_list': class_list})
 
 
 def add_class(request):
