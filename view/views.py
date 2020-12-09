@@ -7,16 +7,23 @@
 @Motto：ABC(Always Be Coding)
 
 """
+
+from datetime import timedelta
 from utils.sqlhelp import SqlHelp
 from django.shortcuts import render, redirect, HttpResponse
 import json
+import datetime
 
 
 def classes(request):
-    obj = SqlHelp()
-    class_list = obj.get_list('select id, title from class', [])
-    obj.close()
-    return render(request, 'classes.html', {'class_list': class_list})
+    tk = request.COOKIES.get('ticket')
+    if not tk:
+        return redirect('/login')
+    else:
+        obj = SqlHelp()
+        class_list = obj.get_list('select id, title from class', [])
+        obj.close()
+        return render(request, 'classes.html', {'class_list': class_list})
 
 
 def add_class(request):
@@ -168,6 +175,20 @@ def get_all_class(request):
     return HttpResponse(json.dumps(class_list))
 
 
+def login(request):
+    if request.method == 'GET':
+        return render(request, 'login.html')
+    else:
+        user = request.POST.get('username')
+        pwd = request.POST.get('password')
+        print(user)
+        print(pwd)
+        if user == 'lzq' and pwd == '123':
+            obj = redirect('/classes')
+            obj.set_cookie('ticket', 'abcdefg', max_age=10)
+            return obj
+        else:
+            return render(request, 'login.html')
 
 
 
